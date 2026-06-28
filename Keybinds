@@ -1,140 +1,167 @@
 -- ts file was generated at discord.gg/25ms
 
-local _ScreenGui = Instance.new('ScreenGui', game:GetService('CoreGui'))
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
 
-_ScreenGui.ResetOnSpawn = false
-_ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-_ScreenGui.Name = 'Banned'
+local screenGui = Instance.new("ScreenGui")
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+screenGui.Name = "Banned"
+screenGui.Parent = CoreGui
 
-local _Frame = Instance.new('Frame')
+local frame = Instance.new("Frame")
+frame.Parent = screenGui
+frame.Visible = false
+frame.BorderSizePixel = 0
+frame.BackgroundColor3 = Color3.fromRGB(10, 11, 14)
+frame.Size = UDim2.new(0.168, 0, 0.021, 0)
+frame.Position = UDim2.new(0.012, 0, 0.402, 0)
+frame.Name = "KeybindUI"
 
-_Frame.Parent = _ScreenGui
-_Frame.Visible = false
-_Frame.BorderSizePixel = 0
-_Frame.BackgroundColor3 = Color3.fromRGB(0, 250, 242)
-_Frame.Size = UDim2.new(0.12246, 0, 0.01894, 0)
-_Frame.Position = UDim2.new(0.00575, 0, 0.40542, 0)
-_Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-_Frame.Name = 'KeybindUI'
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 6)
+corner.Parent = frame
 
-local _UIStroke = Instance.new('UIStroke')
+local stroke = Instance.new("UIStroke")
+stroke.Parent = frame
+stroke.Color = Color3.fromRGB(34, 38, 49)
+stroke.Transparency = 0.2
 
-_UIStroke.Parent = _Frame
-_UIStroke.Color = Color3.fromRGB(199, 199, 199)
-Instance.new('UICorner').Parent = _Frame
+local topLine = Instance.new("Frame")
+topLine.Parent = frame
+topLine.BackgroundColor3 = Color3.fromRGB(61, 127, 212)
+topLine.BorderSizePixel = 0
+topLine.Size = UDim2.new(1, 0, 0, 2)
+topLine.Position = UDim2.new(0, 0, 0, 0)
 
-local _Folder = Instance.new('Folder')
+local title = Instance.new("TextLabel")
+title.Parent = frame
+title.Text = "Keybinds"
+title.TextWrapped = false
+title.TextScaled = false
+title.BorderSizePixel = 0
+title.BackgroundTransparency = 1
+title.Size = UDim2.new(1, -12, 0, 14)
+title.Position = UDim2.new(0, 6, 0, -17)
+title.Font = Enum.Font.GothamSemibold
+title.TextSize = 11
+title.TextColor3 = Color3.fromRGB(164, 173, 190)
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.TextStrokeTransparency = 1
 
-_Folder.Parent = _Frame
-_Folder.Name = 'Useful'
+local rowsFolder = Instance.new("Folder")
+rowsFolder.Parent = frame
+rowsFolder.Name = "Useful"
 
-local _TextLabel = Instance.new('TextLabel')
+local bindsFolder = Instance.new("Folder")
+bindsFolder.Parent = frame
+bindsFolder.Name = "Keybinds"
 
-_TextLabel.Parent = _Frame
-_TextLabel.TextWrapped = true
-_TextLabel.TextStrokeTransparency = 0.5
-_TextLabel.BorderSizePixel = 0
-_TextLabel.TextSize = 14
-_TextLabel.TextScaled = true
-_TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-_TextLabel.FontFace = Font.new('rbxasset://fonts/families/FredokaOne.json', Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-_TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-_TextLabel.BackgroundTransparency = 1
-_TextLabel.Size = UDim2.new(1.00187, 0, 1.02476, 0)
-_TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-_TextLabel.Text = 'Keybinds'
-_TextLabel.Name = 'KeybindTitle'
-_TextLabel.Position = UDim2.new(-0.00187, 0, -1.31238, 0)
+local rowCount = 0
+local rowMap = {}
+local keyMap = {}
 
-local _Folder2 = Instance.new('Folder')
+local function makeRow(name, key, visible, active)
+    local row = Instance.new("TextLabel")
+    row.Parent = rowsFolder
+    row.BackgroundColor3 = Color3.fromRGB(13, 14, 18)
+    row.BackgroundTransparency = 0.08
+    row.BorderSizePixel = 0
+    row.Size = UDim2.new(1, -8, 0, 15)
+    row.Position = UDim2.new(0, 4, 0, 18 + (rowCount * 16))
+    row.Font = Enum.Font.GothamMedium
+    row.TextSize = 10
+    row.TextColor3 = active and Color3.fromRGB(34, 197, 94) or Color3.fromRGB(220, 74, 74)
+    row.TextXAlignment = Enum.TextXAlignment.Left
+    row.TextTruncate = Enum.TextTruncate.AtEnd
+    row.TextWrapped = false
 
-_Folder2.Parent = _Frame
-_Folder2.Name = 'Keybinds'
+    local rowCorner = Instance.new("UICorner")
+    rowCorner.CornerRadius = UDim.new(0, 4)
+    rowCorner.Parent = row
 
-local u7 = 0
-local u8 = {}
-local u9 = {}
-local v10 = {}
+    local keyBadge = Instance.new("TextLabel")
+    keyBadge.Parent = row
+    keyBadge.BackgroundColor3 = Color3.fromRGB(18, 20, 26)
+    keyBadge.BorderSizePixel = 0
+    keyBadge.Size = UDim2.new(0, 48, 1, 0)
+    keyBadge.Position = UDim2.new(1, -50, 0, 0)
+    keyBadge.Font = Enum.Font.Code
+    keyBadge.TextSize = 9
+    keyBadge.TextColor3 = Color3.fromRGB(164, 173, 190)
+    keyBadge.Text = key or "None"
+    keyBadge.Parent = row
+    local badgeCorner = Instance.new("UICorner")
+    badgeCorner.CornerRadius = UDim.new(0, 4)
+    badgeCorner.Parent = keyBadge
 
-local function u17(p11, p12, p13, p14)
-    if not u8[p11] then
-        local _TextLabel2 = Instance.new('TextLabel')
+    local accent = Instance.new("Frame")
+    accent.Parent = row
+    accent.BackgroundColor3 = active and Color3.fromRGB(34, 197, 94) or Color3.fromRGB(220, 74, 74)
+    accent.BorderSizePixel = 0
+    accent.Position = UDim2.new(0, 0, 0, 0)
+    accent.Size = UDim2.new(0, 2, 1, 0)
+    local accentCorner = Instance.new("UICorner")
+    accentCorner.CornerRadius = UDim.new(0, 999)
+    accentCorner.Parent = accent
 
-        _TextLabel2.Parent = _Folder
-        _TextLabel2.Visible = p13
-        _TextLabel2.TextWrapped = true
-        _TextLabel2.BorderSizePixel = 0
-        _TextLabel2.TextSize = 14
-        _TextLabel2.TextXAlignment = Enum.TextXAlignment.Left
-        _TextLabel2.TextScaled = true
-        _TextLabel2.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
-        _TextLabel2.FontFace = Font.new('rbxasset://fonts/families/FredokaOne.json', Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-        _TextLabel2.BackgroundTransparency = 1
-        _TextLabel2.Size = UDim2.new(0.99648, 0, 1.15833, 0)
+    row.Text = "   " .. name .. "  -  " .. keyBadge.Text .. "  |  " .. (active and "Active" or "Inactive")
+    row.Visible = visible
 
-        local v16 = p14 and 'Active' or 'Inactive'
-
-        _TextLabel2.TextColor3 = v16 == 'Active' and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        _TextLabel2.Text = p11 .. ' - ' .. (p12 or 'None') .. ' | ' .. v16
-        _TextLabel2.Name = 'Keybind' .. tostring(u7)
-        _TextLabel2.Position = UDim2.new(0.00552 * u7, 0, 1.53333 + 1.53333 * u7, 0)
-        u7 = u7 + 1
-        u8[p11] = _TextLabel2
-    end
+    rowMap[name] = row
 end
-local function v19(p18)
-    _Frame.Visible = p18
-end
-local function v20()
-    _Frame:Destroy()
+
+local function visible(state)
+    frame.Visible = state
 end
 
-function v10.UpdateKeybinds(p21, p22, p23, p24)
-    if not p22 then
-        u9[p21] = 'None'
-        p22 = 'None'
-    end
-    if u9[p21] ~= 'None' and p22 ~= 'None' then
-        u9[p21] = p22
-    end
-    if p22 ~= 'None' then
-        u9[p21] = p22
-    end
-    if p21 and u8[p21] then
-        local v25 = u8[p21]
+local function disconnect()
+    screenGui:Destroy()
+end
 
-        v25.Visible = p23 ~= false
+local api = {}
 
-        local v26 = u9[p21]
-        local v27 = p24 == nil or p24 and 'Active' or 'Inactive'
-
-        v25.TextColor3 = v27 == 'Active' and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        v25.Text = p21 .. ' - ' .. v26 .. ' | ' .. v27
-    elseif p21 then
-        u17(p21, p22, p23, p24)
+function api.UpdateKeybinds(name, key, show, active)
+    if not key then
+        key = "None"
     end
 
-    u7 = 0
+    keyMap[name] = key
 
-    local v28 = _Folder
-    local v29, v30, v31 = ipairs(v28:GetChildren())
-
-    while true do
-        local v32
-
-        v31, v32 = v29(v30, v31)
-
-        if v31 == nil then
-            break
+    if rowMap[name] then
+        local row = rowMap[name]
+        local badge = row:FindFirstChildOfClass("TextLabel")
+        local label = row
+        if badge then
+            local children = row:GetChildren()
+            for _, child in ipairs(children) do
+                if child:IsA("TextLabel") and child ~= row then
+                    badge = child
+                    break
+                end
+            end
         end
-        if v32:IsA('TextLabel') and v32.Visible then
-            v32.Position = UDim2.new(0.00552 * u7, 0, 1.53333 + 1.53333 * u7, 0)
-            u7 = u7 + 1
+
+        row.Visible = show ~= false
+        row.TextColor3 = active and Color3.fromRGB(34, 197, 94) or Color3.fromRGB(220, 74, 74)
+        row.Text = "   " .. name .. "  -  " .. key .. "  |  " .. (active and "Active" or "Inactive")
+        if badge then
+            badge.Text = key
+        end
+    else
+        makeRow(name, key, show ~= false, active)
+    end
+
+    rowCount = 0
+    for _, child in ipairs(rowsFolder:GetChildren()) do
+        if child:IsA("TextLabel") and child.Visible then
+            child.Position = UDim2.new(0, 4, 0, 18 + (rowCount * 16))
+            rowCount += 1
         end
     end
 end
 
-v10.Visible = v19
-v10.Disconnect = v20
+api.Visible = visible
+api.Disconnect = disconnect
 
-return v10
+return api
