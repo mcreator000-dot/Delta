@@ -48,7 +48,7 @@ end
 
 function menu.new_tab(tab_image, tab_title)
   local tab = {tab_num = tab_num}
-  tab_title = tab_title or "Tab"
+  tab_title = tab_title or ("Tab " .. tostring(tab_num))
   menu.values[tab_num] = {}
   tab_num = tab_num + 1
 
