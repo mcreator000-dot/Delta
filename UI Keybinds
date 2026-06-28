@@ -1,1 +1,140 @@
+-- ts file was generated at discord.gg/25ms
 
+local _ScreenGui = Instance.new('ScreenGui', game:GetService('CoreGui'))
+
+_ScreenGui.ResetOnSpawn = false
+_ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+_ScreenGui.Name = 'Banned'
+
+local _Frame = Instance.new('Frame')
+
+_Frame.Parent = _ScreenGui
+_Frame.Visible = false
+_Frame.BorderSizePixel = 0
+_Frame.BackgroundColor3 = Color3.fromRGB(0, 250, 242)
+_Frame.Size = UDim2.new(0.12246, 0, 0.01894, 0)
+_Frame.Position = UDim2.new(0.00575, 0, 0.40542, 0)
+_Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+_Frame.Name = 'KeybindUI'
+
+local _UIStroke = Instance.new('UIStroke')
+
+_UIStroke.Parent = _Frame
+_UIStroke.Color = Color3.fromRGB(199, 199, 199)
+Instance.new('UICorner').Parent = _Frame
+
+local _Folder = Instance.new('Folder')
+
+_Folder.Parent = _Frame
+_Folder.Name = 'Useful'
+
+local _TextLabel = Instance.new('TextLabel')
+
+_TextLabel.Parent = _Frame
+_TextLabel.TextWrapped = true
+_TextLabel.TextStrokeTransparency = 0.5
+_TextLabel.BorderSizePixel = 0
+_TextLabel.TextSize = 14
+_TextLabel.TextScaled = true
+_TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+_TextLabel.FontFace = Font.new('rbxasset://fonts/families/FredokaOne.json', Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+_TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+_TextLabel.BackgroundTransparency = 1
+_TextLabel.Size = UDim2.new(1.00187, 0, 1.02476, 0)
+_TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+_TextLabel.Text = 'Keybinds'
+_TextLabel.Name = 'KeybindTitle'
+_TextLabel.Position = UDim2.new(-0.00187, 0, -1.31238, 0)
+
+local _Folder2 = Instance.new('Folder')
+
+_Folder2.Parent = _Frame
+_Folder2.Name = 'Keybinds'
+
+local u7 = 0
+local u8 = {}
+local u9 = {}
+local v10 = {}
+
+local function u17(p11, p12, p13, p14)
+    if not u8[p11] then
+        local _TextLabel2 = Instance.new('TextLabel')
+
+        _TextLabel2.Parent = _Folder
+        _TextLabel2.Visible = p13
+        _TextLabel2.TextWrapped = true
+        _TextLabel2.BorderSizePixel = 0
+        _TextLabel2.TextSize = 14
+        _TextLabel2.TextXAlignment = Enum.TextXAlignment.Left
+        _TextLabel2.TextScaled = true
+        _TextLabel2.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+        _TextLabel2.FontFace = Font.new('rbxasset://fonts/families/FredokaOne.json', Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+        _TextLabel2.BackgroundTransparency = 1
+        _TextLabel2.Size = UDim2.new(0.99648, 0, 1.15833, 0)
+
+        local v16 = p14 and 'Active' or 'Inactive'
+
+        _TextLabel2.TextColor3 = v16 == 'Active' and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+        _TextLabel2.Text = p11 .. ' - ' .. (p12 or 'None') .. ' | ' .. v16
+        _TextLabel2.Name = 'Keybind' .. tostring(u7)
+        _TextLabel2.Position = UDim2.new(0.00552 * u7, 0, 1.53333 + 1.53333 * u7, 0)
+        u7 = u7 + 1
+        u8[p11] = _TextLabel2
+    end
+end
+local function v19(p18)
+    _Frame.Visible = p18
+end
+local function v20()
+    _Frame:Destroy()
+end
+
+function v10.UpdateKeybinds(p21, p22, p23, p24)
+    if not p22 then
+        u9[p21] = 'None'
+        p22 = 'None'
+    end
+    if u9[p21] ~= 'None' and p22 ~= 'None' then
+        u9[p21] = p22
+    end
+    if p22 ~= 'None' then
+        u9[p21] = p22
+    end
+    if p21 and u8[p21] then
+        local v25 = u8[p21]
+
+        v25.Visible = p23 ~= false
+
+        local v26 = u9[p21]
+        local v27 = p24 == nil or p24 and 'Active' or 'Inactive'
+
+        v25.TextColor3 = v27 == 'Active' and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+        v25.Text = p21 .. ' - ' .. v26 .. ' | ' .. v27
+    elseif p21 then
+        u17(p21, p22, p23, p24)
+    end
+
+    u7 = 0
+
+    local v28 = _Folder
+    local v29, v30, v31 = ipairs(v28:GetChildren())
+
+    while true do
+        local v32
+
+        v31, v32 = v29(v30, v31)
+
+        if v31 == nil then
+            break
+        end
+        if v32:IsA('TextLabel') and v32.Visible then
+            v32.Position = UDim2.new(0.00552 * u7, 0, 1.53333 + 1.53333 * u7, 0)
+            u7 = u7 + 1
+        end
+    end
+end
+
+v10.Visible = v19
+v10.Disconnect = v20
+
+return v10
