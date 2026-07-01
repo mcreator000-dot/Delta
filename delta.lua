@@ -892,13 +892,13 @@ if CoreGui then
   r26_0 = pcall
   function keybindUi()
     -- line: [0, 0] id: 263
-    return loadstring(game:HttpGet("https://lirp.mrbrainas.workers.dev/Keybinds", true))()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/mcreator000-dot/Delta/refs/heads/main/Keybinds", true))()
   end
   local r26_0, keybindUi = r26_0(keybindUi)
   r28_0 = pcall
   function blacklistTable()
     -- line: [0, 0] id: 17
-    return loadstring(game:HttpGet("https://lirp.mrbrainas.workers.dev/Bal", true))()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/mcreator000-dot/Delta/refs/heads/main/Bal", true))()
   end
   --[[
   local r28_0, blacklistTable = r28_0(blacklistTable)
@@ -969,7 +969,7 @@ if CoreGui then
         end
         local r32_0, r33_0 = pcall(function()
           -- line: [0, 0] id: 271
-          return loadstring(game:HttpGet("https://lirp.mrbrainas.workers.dev/Key", true))()
+          return loadstring(game:HttpGet("https://raw.githubusercontent.com/mcreator000-dot/Delta/refs/heads/main/Key", true))()
         end)
         if not r33_0 or not r32_0 then
           notify("Brzzz_HOOK | Project Delta", "Error: 402", 5)
@@ -1167,14 +1167,16 @@ if CoreGui then
             state.Resolver = false
             r41_0 = {}
             state.ResolverCache = r41_0
-            state.InstantHit = false
-            state.InstantHitActive = false
-            state.InstantHitDelay = 0.00000005
             state.AutoShoot = false
-            state.AutoShootType = "Regular"
+            state.AutoShootMode = "Rapid"
+            state.AutoShootSpeed = 0.05
+            state.AutoShootHoldActive = false
+            state.AutoShootLastShot = 0
             state.WallCheck = false
             state.TeamCheck = false
             state.ShowTarget = false
+            state.ShowTargetColor = Color3.new(1, 0, 0)
+            state.ShowTargetTransparency = 0.1
             state.ShowTargetVisibleState = false
             state.FreezeTarget = false
             r41_0 = {}
@@ -1391,6 +1393,9 @@ if CoreGui then
             state.FlipModeEnabled = false
             state.OriginalHipHeight = 0
             state.FlipModeConnection = nil
+            state.MenuCrosshairEnabled = false
+            state.MenuCrosshairSize = 10
+            state.MenuCrosshairColor = Color3.new(1, 1, 1)
             crosshairState = game.ReplicatedFirst:FindFirstChild("ServerInfo")
             if crosshairState then
               crosshairState = game.ReplicatedFirst:FindFirstChild("ServerInfo")
@@ -1668,6 +1673,101 @@ if CoreGui then
                 r18_26.Transparency = r19_26
               end
             end
+            local menuCrosshairGui = nil
+            local menuCrosshairFrame = nil
+            local menuCrosshairParts = {}
+            local function isMenuVisible()
+              local r0_26 = CoreGui:FindFirstChild("unknown")
+              if not r0_26 then
+                return false
+              end
+              if r0_26:IsA("ScreenGui") and not r0_26.Enabled then
+                return false
+              end
+              local r1_26 = r0_26:FindFirstChild("Main")
+              if r1_26 and r1_26:IsA("GuiObject") then
+                return r1_26.Visible == true
+              end
+              return r0_26:IsA("ScreenGui") and r0_26.Enabled == true
+            end
+            local function createMenuCrosshair()
+              if menuCrosshairGui then
+                return
+              end
+              menuCrosshairGui = Instance.new("ScreenGui")
+              menuCrosshairGui.Name = "MenuCrosshair"
+              menuCrosshairGui.ResetOnSpawn = false
+              menuCrosshairGui.IgnoreGuiInset = true
+              menuCrosshairGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+              menuCrosshairGui.Enabled = false
+              menuCrosshairGui.Parent = CoreGui
+              menuCrosshairFrame = Instance.new("Frame")
+              menuCrosshairFrame.Name = "CrosshairFrame"
+              menuCrosshairFrame.BackgroundTransparency = 1
+              menuCrosshairFrame.BorderSizePixel = 0
+              menuCrosshairFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+              menuCrosshairFrame.Parent = menuCrosshairGui
+              local function r0_26(r0_27, r1_27)
+                local r2_27 = Instance.new("Frame")
+                r2_27.Name = r0_27
+                r2_27.BackgroundColor3 = r1_27 or state.MenuCrosshairColor
+                r2_27.BorderSizePixel = 0
+                r2_27.ZIndex = 9999
+                r2_27.Parent = menuCrosshairFrame
+                menuCrosshairParts[r0_27] = r2_27
+                return r2_27
+              end
+              r0_26("Top")
+              r0_26("Bottom")
+              r0_26("Left")
+              r0_26("Right")
+              r0_26("Dot", Color3.new(1, 0, 0))
+            end
+            local function updateMenuCrosshairStyle()
+              if not menuCrosshairGui then
+                return
+              end
+              local r0_26 = state.MenuCrosshairSize or 10
+              local r1_26 = math.max(12, r0_26 * 2 + 8)
+              local r2_26 = state.MenuCrosshairColor or Color3.new(1, 1, 1)
+              menuCrosshairFrame.Size = UDim2.new(0, r1_26, 0, r1_26)
+              menuCrosshairParts.Top.Size = UDim2.new(0, 2, 0, r0_26)
+              menuCrosshairParts.Top.Position = UDim2.new(0.5, -1, 0, 0)
+              menuCrosshairParts.Bottom.Size = UDim2.new(0, 2, 0, r0_26)
+              menuCrosshairParts.Bottom.Position = UDim2.new(0.5, -1, 1, -r0_26)
+              menuCrosshairParts.Left.Size = UDim2.new(0, r0_26, 0, 2)
+              menuCrosshairParts.Left.Position = UDim2.new(0, 0, 0.5, -1)
+              menuCrosshairParts.Right.Size = UDim2.new(0, r0_26, 0, 2)
+              menuCrosshairParts.Right.Position = UDim2.new(1, -r0_26, 0.5, -1)
+              menuCrosshairParts.Dot.Size = UDim2.new(0, 2, 0, 2)
+              menuCrosshairParts.Dot.Position = UDim2.new(0.5, -1, 0.5, -1)
+              menuCrosshairParts.Top.BackgroundColor3 = r2_26
+              menuCrosshairParts.Bottom.BackgroundColor3 = r2_26
+              menuCrosshairParts.Left.BackgroundColor3 = r2_26
+              menuCrosshairParts.Right.BackgroundColor3 = r2_26
+            end
+            local function updateMenuCrosshair()
+              local r0_26 = state.MenuCrosshairEnabled and isMenuVisible()
+              if not r0_26 then
+                if menuCrosshairGui then
+                  menuCrosshairGui.Enabled = false
+                end
+                return
+              end
+              createMenuCrosshair()
+              updateMenuCrosshairStyle()
+              local r1_26 = UserInputService:GetMouseLocation()
+              menuCrosshairFrame.Position = UDim2.new(0, r1_26.X, 0, r1_26.Y)
+              menuCrosshairGui.Enabled = true
+            end
+            local function destroyMenuCrosshair()
+              if menuCrosshairGui then
+                menuCrosshairGui:Destroy()
+              end
+              menuCrosshairGui = nil
+              menuCrosshairFrame = nil
+              menuCrosshairParts = {}
+            end
             state.FOVCircle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
             state.FOVCircle.Visible = state.FovVisible
             state.FOVCircle.NumSides = 64
@@ -1734,6 +1834,128 @@ if CoreGui then
             else
               warn("Screengui Not Found")
             end
+            local targetChamsCache = {}
+            local function getAimbotTargetCharacter(target)
+              if not target then
+                return nil
+              end
+              if target:IsA("Player") then
+                return target.Character
+              end
+              if target:IsA("Model") then
+                return target
+              end
+              return nil
+            end
+            local function RemoveTargetChams(character)
+              if not character then
+                return
+              end
+              local targetHighlight = targetChamsCache[character]
+              if targetHighlight and targetHighlight.Parent then
+                targetHighlight:Destroy()
+              end
+              targetChamsCache[character] = nil
+              local existingHighlight = character:FindFirstChild("AimbotOutlineHighlight")
+              if existingHighlight then
+                existingHighlight:Destroy()
+              end
+              existingHighlight = character:FindFirstChild("AimbotTargetHighlight")
+              if existingHighlight then
+                existingHighlight:Destroy()
+              end
+              for r4_41, r5_41 in ipairs(character:GetDescendants()) do
+                if r5_41.Name == "AimbotTargetPartHighlight" or r5_41.Name == "AimbotTargetPartOutline" or r5_41.Name == "AimbotOutlineHighlight" or r5_41.Name == "TargetedPartGlow" then
+                  r5_41:Destroy()
+                end
+                if r5_41:IsA("BasePart") then
+                  r5_41:SetAttribute("IsAimbotTargetPart", false)
+                end
+              end
+              character:SetAttribute("HasAimbotChams", false)
+            end
+            local function ClearAimbotTargetVisuals()
+              local charactersToRemove = {}
+              for character in pairs(targetChamsCache) do
+                table.insert(charactersToRemove, character)
+              end
+              for r4_41, r5_41 in ipairs(charactersToRemove) do
+                RemoveTargetChams(r5_41)
+              end
+              targetChamsCache = {}
+            end
+            local function ApplyTargetChams(target, enabled)
+              local character = getAimbotTargetCharacter(target)
+              if not character then
+                return
+              end
+              if not enabled or not state.ShowTarget then
+                RemoveTargetChams(character)
+                return
+              end
+              local chamColor = state.ShowTargetColor or Color3.new(1, 0, 0)
+              local chamTransparency = state.ShowTargetTransparency
+              if chamTransparency == nil then
+                chamTransparency = 0.1
+              end
+              local charactersToRemove = {}
+              for cachedCharacter in pairs(targetChamsCache) do
+                if cachedCharacter ~= character then
+                  table.insert(charactersToRemove, cachedCharacter)
+                end
+              end
+              for r4_41, r5_41 in ipairs(charactersToRemove) do
+                RemoveTargetChams(r5_41)
+              end
+              local targetHighlight = targetChamsCache[character]
+              if not targetHighlight or not targetHighlight.Parent then
+                local existingHighlight = character:FindFirstChild("AimbotTargetHighlight") or character:FindFirstChild("AimbotOutlineHighlight")
+                if existingHighlight then
+                  existingHighlight:Destroy()
+                end
+                targetHighlight = Instance.new("Highlight")
+                targetHighlight.Name = "AimbotTargetHighlight"
+                targetHighlight.Parent = character
+                targetHighlight.Enabled = true
+                targetHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                targetChamsCache[character] = targetHighlight
+                character:SetAttribute("HasAimbotChams", true)
+              end
+              targetHighlight.FillColor = chamColor
+              targetHighlight.OutlineColor = chamColor
+              targetHighlight.FillTransparency = chamTransparency
+              targetHighlight.OutlineTransparency = 0.05
+            end
+            local function UpdateAimbotTargetChams()
+              if not state.ShowTarget or not state.LastTarget then
+                ClearAimbotTargetVisuals()
+                return
+              end
+              local activeCharacter = getAimbotTargetCharacter(state.LastTarget)
+              if not activeCharacter or not activeCharacter.Parent then
+                ClearAimbotTargetVisuals()
+                return
+              end
+              local charactersToRemove = {}
+              for character in pairs(targetChamsCache) do
+                if character ~= activeCharacter then
+                  table.insert(charactersToRemove, character)
+                end
+              end
+              for r4_41, r5_41 in ipairs(charactersToRemove) do
+                RemoveTargetChams(r5_41)
+              end
+              ApplyTargetChams(state.LastTarget, true)
+            end
+            local function PatchAimTargetDisplay()
+              if aimTargetLabel then
+                aimTargetLabel.TextScaled = true
+                aimTargetLabel.Font = Enum.Font.GothamBold
+                aimTargetLabel.TextStrokeTransparency = 0.2
+                aimTargetLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+              end
+            end
+            PatchAimTargetDisplay()
             local function toggleXrayTransparency(r0_266)
               -- line: [0, 0] id: 266
               local r1_266 = workspace.CurrentCamera.CFrame.Position
@@ -1818,6 +2040,16 @@ if CoreGui then
               applyViewModelArmsStyle("Transparency", r0_39)
             end
             local featureConnections = {}
+            featureConnections.AimbotTargetPlayerRemoving = Players.PlayerRemoving:Connect(function(player)
+              if player.Character then
+                RemoveTargetChams(player.Character)
+              end
+            end)
+            featureConnections.AimbotTargetDescendantRemoving = workspace.DescendantRemoving:Connect(function(desc)
+              if desc:IsA("Model") then
+                RemoveTargetChams(desc)
+              end
+            end)
             function toggleAiEsp(r0_32)
               -- line: [0, 0] id: 32
               if r0_32.Name == localPlayer.Name then
@@ -2518,17 +2750,77 @@ if CoreGui then
             end
             local r89_0 = 90
             task.spawn(function()
-              -- line: [0, 0] id: 56
+            -- line: [0, 0] id: 56
               notify("Brzzz_HOOK 3/5", "Creating UI", 2.5)
-              local r1_56 = loadstring(game:HttpGet("https://lirp.mrbrainas.workers.dev/Library", true))().new("Brzzz_HOOK | Project Delta | 2025/11/12 | discord.gg/8RrWuEabnc", "ProjectDelta")
-              local r2_56 = r1_56.new_tab("rbxassetid://4483345998")
-              local r3_56 = r1_56.new_tab("http://www.roblox.com/asset/?id=125745863213844")
-              local r4_56 = r1_56.new_tab("http://www.roblox.com/asset/?id=108878875067063")
-              local r5_56 = r1_56.new_tab("http://www.roblox.com/asset/?id=123050846635735")
-              local r6_56 = r1_56.new_tab("http://www.roblox.com/asset/?id=79529419358191")
-              local r6b_56 = r1_56.new_tab("rbxassetid://4483345998")
-              local r6c_56 = r1_56.new_tab("http://www.roblox.com/asset/?id=125745863213844")
-              local r6d_56 = r1_56.new_tab("http://www.roblox.com/asset/?id=108878875067063")
+              local function loadUiLibrary()
+                local localPath = "assets/library.txt"
+                if isfile and readfile and isfile(localPath) then
+                  local ok, lib = pcall(loadstring, readfile(localPath))
+                  if ok and lib then
+                    return lib()
+                  end
+                end
+                return loadstring(game:HttpGet("https://raw.githubusercontent.com/mcreator000-dot/Delta/refs/heads/main/Library", true))()
+              end
+              local r1_56 = loadUiLibrary().new("Brzzz_HOOK | Project Delta | 2025/11/12 | discord.gg/8RrWuEabnc", "ProjectDelta")
+              task.defer(function()
+                local menuParent = CoreGui
+                if gethui then
+                  local ok, hui = pcall(gethui)
+                  if ok and hui then
+                    menuParent = hui
+                  end
+                end
+                local menuGui = menuParent:FindFirstChild("unknown") or CoreGui:FindFirstChild("unknown")
+                local mainFrame = menuGui and menuGui:FindFirstChild("Main")
+                local tabButtons = mainFrame and mainFrame:FindFirstChild("TabButtons")
+                local titleLabel = mainFrame and mainFrame:FindFirstChild("Title")
+                if tabButtons then
+                  tabButtons.Position = UDim2.new(0, 0, 0, 79)
+                  tabButtons.Size = UDim2.new(0, 120, 1, -80)
+                end
+                if titleLabel then
+                  titleLabel.AnchorPoint = Vector2.new(0.5, 0)
+                  titleLabel.Position = UDim2.new(0.5, 0, 0, 14)
+                  titleLabel.Size = UDim2.new(1, -32, 0, 18)
+                  titleLabel.TextXAlignment = Enum.TextXAlignment.Center
+                end
+                if mainFrame and mainFrame:FindFirstChild("SideBar") then
+                  local sideBar = mainFrame.SideBar
+                  sideBar.Position = UDim2.new(0, 2, 0, sideBar.Position.Y.Offset)
+                end
+                if mainFrame then
+                  local function createLogo(parent, name, anchor, pos, imageId, size)
+                    local logo = parent:FindFirstChild(name)
+                    if not logo then
+                      logo = Instance.new("ImageLabel")
+                      logo.Name = name
+                      logo.Parent = parent
+                    end
+                    logo.BackgroundTransparency = 1
+                    logo.BorderSizePixel = 0
+                    logo.AnchorPoint = anchor
+                    logo.Position = pos
+                    logo.Size = size or UDim2.new(0, 120, 0, 120)
+                    logo.Image = imageId or "rbxassetid://116883290791010"
+                    logo.ScaleType = Enum.ScaleType.Fit
+                    logo.ZIndex = 50
+                    return logo
+                  end
+
+                  createLogo(mainFrame, "CornerLogo", Vector2.new(0, 0), UDim2.new(0, 0, 0, 0), "rbxassetid://116883290791010", UDim2.new(0, 70, 0, 70))
+                  createLogo(mainFrame, "CornerLogo2", Vector2.new(0, 0), UDim2.new(0, 55, 0, -50), "rbxassetid://91125138387121", UDim2.new(0, 200, 0, 200))
+                  createLogo(mainFrame, "CornerLogo3", Vector2.new(0, 0), UDim2.new(0, 55, 0, -50), "rbxassetid://79446531787618", UDim2.new(0, 200, 0, 200))
+                  createLogo(mainFrame, "CornerLogo4", Vector2.new(0, 0), UDim2.new(0, 55, 0, -50), "rbxassetid://103905886855383", UDim2.new(0, 200, 0, 200))
+                end
+              end)
+              local r2_56 = r1_56.new_tab("rbxassetid://4483345998", "Combat")
+              local r3_56 = r1_56.new_tab("http://www.roblox.com/asset/?id=125745863213844", "Visuals")
+              local r4_56 = r1_56.new_tab("http://www.roblox.com/asset/?id=108878875067063", "Movment")
+              local r5_56 = r1_56.new_tab("http://www.roblox.com/asset/?id=123050846635735", "Player")
+              local r6_56 = r1_56.new_tab("http://www.roblox.com/asset/?id=79529419358191", "World")
+              local r6b_56 = r1_56.new_tab("rbxassetid://4483345998", "Misc")
+              local r6c_56 = r1_56.new_tab("http://www.roblox.com/asset/?id=125745863213844", "Settings")
               local r7_56 = r2_56.new_section("Aimbot")
               local r8_56 = r2_56.new_section("ESP")
               local r9_56 = r3_56.new_section("World")
@@ -2610,39 +2902,32 @@ if CoreGui then
                 },
               }, function(r0_208)
                 -- line: [0, 0] id: 208
-                if r0_208.Dropdown and r0_208.Dropdown == "Silent" then
-                  state.SilentAimbot = true
-                elseif r0_208.Dropdown then
-                  state.SilentAimbot = false
+                if r0_208.Dropdown then
+                  state.SilentAimbot = r0_208.Dropdown == "Silent"
                 end
               end)
               local r50_56 = r14_56.element("Dropdown", "Aimbot Aim Part", {
                 options = {
                   "Head",
-                  "FaceHitBox",
-                  "HeadTopHitBox",
-                  "UpperTorso",
-                  "LowerTorso",
-                  "LeftUpperArm",
-                  "LeftLowerArm",
-                  "LeftHand",
-                  "RightUpperArm",
-                  "RightLowerArm",
-                  "RightHand",
-                  "LeftUpperLeg",
-                  "LeftLowerLeg",
-                  "LeftFoot",
-                  "RightUpperLeg",
-                  "RightLowerLeg",
-                  "RightFoot",
-                  nil
+                  "Torso",
+                  "Left Arm",
+                  "Right Arm",
+                  "Left Leg",
+                  "Right Leg",
+                  "Smart Aiming"
                 },
               }, function(r0_249)
                 -- line: [0, 0] id: 249
-                state.AimPart = r0_249.Dropdown
-              end)
-              local r50b_56 = r14_56.element("Toggle", "Smart Aiming", false, function(r0_250)
-                state.SmartAiming = r0_250.Toggle
+                local r1_249 = {
+                  Head = "Head",
+                  Torso = "UpperTorso",
+                  ["Left Arm"] = "LeftUpperArm",
+                  ["Right Arm"] = "RightUpperArm",
+                  ["Left Leg"] = "LeftUpperLeg",
+                  ["Right Leg"] = "RightUpperLeg",
+                }
+                state.SmartAiming = r0_249.Dropdown == "Smart Aiming"
+                state.AimPart = r1_249[r0_249.Dropdown] or "Head"
               end)
               local r51_56 = r14_56.element("Slider", "Aimbot Smoothnes", {
                 default = {
@@ -2718,18 +3003,36 @@ if CoreGui then
                 -- line: [0, 0] id: 205
                 state.FOVCircle.Transparency = r0_205.Slider / 100
               end)
-              r15_56.element("Toggle", "Show Aimbot Target", false, function(r0_212)
+              r15_56.element("Toggle", "Show Aimbot Target (Chams)", false, function(r0_212)
                 -- line: [0, 0] id: 212
                 state.ShowTarget = r0_212.Toggle
+                if not r0_212.Toggle then
+                  ClearAimbotTargetVisuals()
+                end
               end):add_color({
                 Color = Color3.new(1, 0, 0),
               }, nil, function(r0_173)
                 -- line: [0, 0] id: 173
-                aimTargetLabel.TextColor3 = r0_173.Color
+                state.ShowTargetColor = r0_173.Color
+                if aimTargetLabel then
+                  aimTargetLabel.TextColor3 = state.ShowTargetColor
+                end
+                if state.ShowTarget and state.LastTarget then
+                  ApplyTargetChams(state.LastTarget, true)
+                end
               end)
-              local r62_56 = r15_56.element("Toggle", "Display Aimbot Target Visibility Status", false, function(r0_254)
+              local r62b_56 = r15_56.element("Slider", "Chams Transparency", {
+                default = {
+                  min = 0,
+                  max = 100,
+                  default = 10,
+                },
+              }, function(r0_254)
                 -- line: [0, 0] id: 254
-                state.ShowTargetVisibleState = r0_254.Toggle
+                state.ShowTargetTransparency = r0_254.Slider / 100
+                if state.ShowTarget and state.LastTarget then
+                  ApplyTargetChams(state.LastTarget, true)
+                end
               end)
               local r63_56 = r15_56.element("Toggle", "Aimbot Prediction", false, function(r0_250)
                 -- line: [0, 0] id: 250
@@ -2738,45 +3041,59 @@ if CoreGui then
               local r64_56 = r15_56.element("Toggle", "Auto Shoot", false, function(r0_107)
                 -- line: [0, 0] id: 107
                 state.AutoShoot = r0_107.Toggle
+                if not r0_107.Toggle then
+                  state.AutoShootHoldActive = false
+                  mouse1release()
+                end
               end)
               local r65_56 = r15_56.element("Dropdown", "Auto Shoot Mode", {
                 options = {
-                  "Regular",
-                  "Instant Hit - Requires Silent"
+                  "Rapid",
+                  "Hold"
                 },
               }, function(r0_259)
                 -- line: [0, 0] id: 259
-                if r0_259.Dropdown == "Regular" then
-                  state.AutoShootType = "Regular"
-                else
-                  state.AutoShootType = "Instant"
+                state.AutoShootMode = r0_259.Dropdown
+                if r0_259.Dropdown == "Hold" then
+                  state.AutoShootHoldActive = false
+                  mouse1release()
                 end
               end)
-              local r66_56 = r15_56.element("Toggle", "Freeze Target (Players Only)", false, function(r0_256)
+              local r66_56 = r15_56.element("Slider", "Rapid Fire Speed (ms)", {
+                default = {
+                  min = 10,
+                  max = 500,
+                  default = 50,
+                },
+              }, function(r0_260)
+                -- line: [0, 0] id: 260
+                state.AutoShootSpeed = r0_260.Slider / 1000
+              end)
+              local r67_56 = r15_56.element("Toggle", "Freeze Target (Players Only)", false, function(r0_256)
                 -- line: [0, 0] id: 256
                 state.FreezeTarget = r0_256.Toggle
               end)
-              local r67_56 = r15_56.element("Toggle", "Wall Check", false, function(r0_248)
+              local r68_56 = r15_56.element("Toggle", "Wall Check", false, function(r0_248)
                 -- line: [0, 0] id: 248
                 state.WallCheck = r0_248.Toggle
               end)
-              local r68_56 = r15_56.element("Toggle", "Team Check", false, function(r0_66)
+              local r69_56 = r15_56.element("Toggle", "Team Check", false, function(r0_66)
                 -- line: [0, 0] id: 66
                 state.TeamCheck = r0_66.Toggle
               end)
-              local r69_56 = r15_56.element("Toggle", "Sticky Aimbot Target", false, function(r0_230)
+              local r70_56 = r15_56.element("Toggle", "Sticky Aimbot Target", false, function(r0_230)
                 -- line: [0, 0] id: 230
                 state.StickyAim = r0_230.Toggle
               end)
-              local r70_56 = r16_56.element("Toggle", "No Recoil | Instant Mosin", false, function(r0_228)
+              local r71_56 = r16_56.element("Toggle", "No Recoil | Instant Mosin", false, function(r0_228)
                 -- line: [0, 0] id: 228
                 toggleNoRecoil(r0_228.Toggle)
               end)
-              local r71_56 = r16_56.element("Toggle", "No Spread", false, function(r0_114)
+              local r72_56 = r16_56.element("Toggle", "No Spread", false, function(r0_114)
                 -- line: [0, 0] id: 114
                 toggleNoSpread(r0_114.Toggle)
               end)
-              local r72_56 = r16_56.element("Toggle", "Instant Equip", false, function(r0_76)
+              local r73_56 = r16_56.element("Toggle", "Instant Equip", false, function(r0_76)
                 -- line: [0, 0] id: 76
                 state.InstantEquip = r0_76.Toggle
               end)
@@ -2820,29 +3137,6 @@ if CoreGui then
                 if state.BulletTracer and r0_236.Name == "Smoke" or r0_236.Name == "SmokeLittle" then
                   spawnBulletTracer(false)
                 end
-              end)
-              r16_56.element("Toggle", "Instant Hit - Requires Keybind", false, function(r0_209)
-                -- line: [0, 0] id: 209
-                state.InstantHit = r0_209.Toggle
-                keybindUi.UpdateKeybinds("Instant Hit", "None", state.InstantHit, state.InstantHitActive)
-              end):add_keybind("Hold", function(r0_64)
-                -- line: [0, 0] id: 64
-                if r0_64.Active and state.InstantHit then
-                  state.InstantHitActive = true
-                else
-                  state.InstantHitActive = false
-                end
-                keybindUi.UpdateKeybinds("Instant Hit", r0_64.Key, state.InstantHit, state.InstantHitActive)
-              end)
-              local r78_56 = r16_56.element("Slider", "Instant Hit - Shoot Delay", {
-                default = {
-                  min = 1,
-                  max = 100,
-                  default = 15,
-                },
-              }, function(r0_77)
-                -- line: [0, 0] id: 77
-                state.InstantHitDelay = r0_77.Slider / 100
               end)
               local r79_56 = r17_56.element("Toggle", "ESP MasterSwitch", false, function(r0_65)
                 -- line: [0, 0] id: 65
@@ -4043,10 +4337,34 @@ if CoreGui then
                 crosshairState.Visible = r0_175.Toggle
                 updateCrosshairDrawing()
               end):add_color({
-                Color = Color3.fromRGB(crosshairState.Color),
+                Color = crosshairState.Color,
               }, nil, function(r0_57)
                 -- line: [0, 0] id: 57
                 crosshairState.Color = r0_57.Color
+                state.MenuCrosshairColor = r0_57.Color
+                updateMenuCrosshairStyle()
+              end)
+              r31_56.element("Toggle", "Show Menu Crosshair", false, function(r0_302)
+                -- line: [0, 0] id: 302
+                state.MenuCrosshairEnabled = r0_302.Toggle
+                updateMenuCrosshair()
+              end):add_color({
+                Color = state.MenuCrosshairColor,
+              }, nil, function(r0_303)
+                -- line: [0, 0] id: 303
+                state.MenuCrosshairColor = r0_303.Color
+                updateMenuCrosshairStyle()
+              end)
+              local r173b_56 = r31_56.element("Slider", "Menu Crosshair Size", {
+                default = {
+                  min = 5,
+                  max = 30,
+                  default = 10,
+                },
+              }, function(r0_304)
+                -- line: [0, 0] id: 304
+                state.MenuCrosshairSize = r0_304.Slider
+                updateMenuCrosshairStyle()
               end)
               local r174_56 = r31_56.element("Toggle", "RGB", false, function(r0_82)
                 -- line: [0, 0] id: 82
@@ -4557,9 +4875,15 @@ if CoreGui then
                   state.DroppedItemESP = false
                   state.TPKill = false
                   state.InstantEquip = false
+                  if state.AutoShootHoldActive then
+                    state.AutoShootHoldActive = false
+                    mouse1release()
+                  end
                   toggleNoRecoil(false)
                   toggleNoSpread(false)
                   toggleQuestItemEsp(false)
+                  ClearAimbotTargetVisuals()
+                  destroyMenuCrosshair()
                   state.Foliage = false
                   r116_56()
                   setDefaultFov("Fov")
@@ -5973,23 +6297,12 @@ if CoreGui then
                   state.LastTarget = nil
                 end
                 if state.LastTarget and state.MasterAimbot and state.AimbotEnabled then
-                  if aimTargetLabel and state.ShowTarget and not state.ShowTargetVisibleState then
-                    aimTargetLabel.Visible = true
-                    r4_273 = state.LastTarget.Name
-                    aimTargetLabel.Text = r4_273
-                  elseif aimTargetLabel and state.ShowTarget and state.ShowTargetVisibleState then
-                    if isAnyPartVisible(state.LastTarget) then
-                      r4_273 = "SHOOOOT!!!"
-                    else
-                      r4_273 = "Hidden"
-                    end
-                    aimTargetLabel.Visible = true
-                    r7_273 = " | "
-                    r8_273 = r4_273
-                    r6_273 = state.LastTarget.Name .. r7_273 .. r8_273
-                    aimTargetLabel.Text = r6_273
+                  UpdateAimbotTargetChams()
+                  if aimTargetLabel then
+                    aimTargetLabel.Visible = false
                   end
                 else
+                  ClearAimbotTargetVisuals()
                   if r109_0 then
                     r109_0.Visible = false
                     r109_0.Transparency = 0
@@ -6062,6 +6375,7 @@ if CoreGui then
                 if crosshairState.Visible and 0 < crosshairState.Transparency then
                   updateCrosshairDrawing()
                 end
+                updateMenuCrosshair()
                 if state.BunnyHopActive then
                   doBunnyHop()
                 end
@@ -6114,7 +6428,7 @@ if CoreGui then
                 elseif r2_273 and state.OmniSprint and r0_273 and localPlayer.PlayerGui:FindFirstChild("MainGui") then
                   r2_273.WalkSpeed = 18.2
                 end
-                if state.InstantHit and state.InstantHitActive then
+                if false then -- Instant Hit removed
                   local r3_273 = nil
                   r4_273 = state.LastTarget
                   if not r4_273 then
@@ -6146,7 +6460,7 @@ if CoreGui then
                         r5_273.CFrame = CFrame.lookAt(r5_273.Position, r6_273.Position)
                         r7_273 = tick()
                         r7_273 = r7_273 - onPlayerAddedForChams
-                        r8_273 = state.InstantHitDelay
+                        r8_273 = 0
                         if r8_273 <= r7_273 then
                           onPlayerAddedForChams = tick()
                           r7_273 = math.random(-10000, 10000)
@@ -6179,10 +6493,20 @@ if CoreGui then
                 else
                   state.FOVCircle.Visible = false
                 end
-                if state.AutoShoot and state.AimbotEnabled then
+                if not state.AutoShoot or not state.AimbotEnabled then
+                  if state.AutoShootHoldActive then
+                    state.AutoShootHoldActive = false
+                    mouse1release()
+                  end
+                elseif state.AutoShoot and state.AimbotEnabled then
                   local r3_273 = mouse.Target
                   r4_273 = r0_273 and r0_273:FindFirstChild("HumanoidRootPart")
-                  if not state.SilentAimbot and r3_273 and r3_273.Parent then
+                  if not r3_273 or r3_273 == localPlayer.Character then
+                    if state.AutoShootHoldActive and state.AutoShootMode == "Hold" then
+                      state.AutoShootHoldActive = false
+                      mouse1release()
+                    end
+                  elseif not state.SilentAimbot and r3_273 and r3_273.Parent then
                     r7_273 = "Model"
                     local r5_273 = r3_273:IsA(r7_273)
                     r6_273 = state.LastTarget
@@ -6294,8 +6618,26 @@ if CoreGui then
                             r8_273 = r3_273.Parent:FindFirstChild("HumanoidRootPart") or r3_273:FindFirstChildOfClass("HumanoidRootPart") or r3_273.Character and r3_273.Character:FindFirstChild("HumanoidRootPart")
                           end
                           if r8_273 and r4_273 and (r4_273.Position - r8_273.Position).Magnitude < 500 then
-                            task.wait(0.01)
-                            mouse1press()
+                            if state.AutoShootMode == "Hold" then
+                              if not state.AutoShootHoldActive then
+                                state.AutoShootHoldActive = true
+                                mouse1press()
+                              end
+                            else
+                              local now = tick()
+                              local delaySeconds = state.AutoShootSpeed or 0.05
+                              if now - (state.AutoShootLastShot or 0) >= delaySeconds then
+                                state.AutoShootLastShot = now
+                                mouse1press()
+                                task.delay(0.01, function()
+                                  if not state.AutoShootHoldActive then
+                                    mouse1release()
+                                  end
+                                end)
+                              end
+                            end
+                          elseif state.AutoShootHoldActive and state.AutoShootMode == "Hold" then
+                            state.AutoShootHoldActive = false
                             mouse1release()
                           end
                         end
@@ -6340,6 +6682,10 @@ if CoreGui then
                     
                     -- If still no target, skip
                     if not r5_273 then
+                        if state.AutoShootHoldActive and state.AutoShootMode == "Hold" then
+                          state.AutoShootHoldActive = false
+                          mouse1release()
+                        end
                         return
                     end
                     
@@ -6407,38 +6753,27 @@ if CoreGui then
                     end
                     
                     if targetVisible and not r6_273 and inFov then
-                      local shootType = state.AutoShootType
-                      if shootType == "Regular" then
-                        task.wait(0.01)
-                        mouse1press()
-                        task.wait(0.01)
-                        mouse1release()
+                      if state.AutoShootMode == "Hold" then
+                        if not state.AutoShootHoldActive then
+                          state.AutoShootHoldActive = true
+                          mouse1press()
+                        end
                       else
-                        -- Instant Hit code
-                        local viewModel = camera:FindFirstChild("ViewModel")
-                        if viewModel and viewModel.Item:FindFirstChild("Offsets") then
-                          local aimPart = viewModel.Item.Offsets:FindFirstChild("AimPart")
-                          local targetPart2 = nil
-                          if r5_273:FindFirstChild("Head") then
-                            targetPart2 = r5_273:FindFirstChild(state.RealAimPart) or r5_273:FindFirstChild("Head")
-                          else
-                            targetPart2 = r5_273.Character:FindFirstChild(state.RealAimPart) or r5_273.Character:FindFirstChild("Head")
-                          end
-                          if aimPart and targetPart2 then
-                            aimPart.CFrame = CFrame.lookAt(aimPart.Position, targetPart2.Position)
-                            local randomSeed = math.random(-10000, 10000)
-                            local hitPos = targetPart2.Position
-                            if fireProjectileRemote:InvokeServer(Vector3.new(localPlayer.Character.HumanoidRootPart.CFrame.Position), randomSeed, tick()) then
-                              task.spawn(function()
-                                projectileInflictRemote:FireServer(targetPart2, targetPart2.CFrame:ToObjectSpace(CFrame.new(targetPart2.Position + Vector3.new(0, 1, 0) * 0.01)), randomSeed, tick())
-                              end)
-                              task.spawn(function()
-                                spawnBulletTracer(hitPos)
-                              end)
+                        local now = tick()
+                        local delaySeconds = state.AutoShootSpeed or 0.05
+                        if now - (state.AutoShootLastShot or 0) >= delaySeconds then
+                          state.AutoShootLastShot = now
+                          mouse1press()
+                          task.delay(0.01, function()
+                            if not state.AutoShootHoldActive then
+                              mouse1release()
                             end
-                          end
+                          end)
                         end
                       end
+                    elseif state.AutoShootHoldActive and state.AutoShootMode == "Hold" then
+                      state.AutoShootHoldActive = false
+                      mouse1release()
                     end
                   end
                 end
@@ -6780,4 +7115,4 @@ if CoreGui then
 			return 
           end
 		  notify("Brzzz_HOOK", "Have a good time!", 5)
-
+wd
